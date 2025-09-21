@@ -1,4 +1,4 @@
--- superwarps.lua (fixed)
+-- superwarps.lua (fixed with debugging)
 addon.name    = 'superwarps'
 addon.author  = 'aryl'
 addon.version = '0.2'
@@ -27,14 +27,46 @@ local zones = {
     apollyon  = require('zones.apollyon'),
     spd       = require('zones.spd'),
 }
-
--- Utility: get NPC by target
+-- Utility: get NPC or object by target with name matching
 local function get_npc_by_target()
     local target = mm:GetTarget()
-    if not target or target.Index == 0 then return nil end
-    return target.Name:lower()
-end
 
+    -- Early return if target is invalid
+    if not target then
+        print("[SW] No target: target is nil.")
+        return nil
+    end
+
+    -- Check if the target has a valid Index and Type
+    if target.Index == 0 or not target.Type then
+        print("[SW] No target: target has invalid index or type.")
+        return nil
+    end
+
+    -- Check if the target has a valid Name
+    if not target.Name then
+        print("[SW] No target: target has no name.")
+        return nil
+    end
+
+    -- Log the target's properties
+    print("[SW] Target name: " .. target.Name)
+
+    -- Name-based matching for specific entities
+    local targetName = target.Name:lower()
+
+    -- Check if the target is a Spatial Displacement or Home Point Crystal by name
+    if targetName == "spatial displacement" then
+        print("[SW] Target is Spatial Displacement.")
+        return targetName
+    elseif targetName == "home point crystal" then
+        print("[SW] Target is Home Point Crystal.")
+        return targetName
+    else
+        print("[SW] Target is neither Spatial Displacement nor Home Point Crystal.")
+        return nil
+    end
+end
 -- Utility: same zone check
 local function is_same_zone(npc_zone)
     local player_zone = mm:GetParty():GetMemberZone(0)
@@ -44,7 +76,10 @@ end
 -- Generic warp (/sw ad)
 local function generic_warp()
     local npc_name = get_npc_by_target()
-    if not npc_name then return end
+    if not npc_name then 
+        print("[SW] No target selected.")
+        return 
+    end
 
     for _, z in pairs(zones) do
         local npc = z[npc_name]
@@ -70,12 +105,16 @@ local function generic_warp()
             end
         end
     end
+    print('[SW] NPC ' .. npc_name .. ' not found in any zone or not in same zone.')
 end
 
 -- Direct warp (/sw s <destination>)
 local function warp_to(dest_name)
     local npc_name = get_npc_by_target()
-    if not npc_name then return end
+    if not npc_name then
+        print("[SW] No target selected.")
+        return
+    end
 
     for _, z in pairs(zones) do
         local npc = z[npc_name]
