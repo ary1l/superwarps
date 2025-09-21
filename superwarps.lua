@@ -1,7 +1,7 @@
 -- superwarps
 addon.name    = 'superwarps'
 addon.author  = 'aryl'
-addon.version = '1.0'
+addon.version = '0.1'
 addon.desc    = 'Warp system for Sortie, Odyssey, Apollyon, Temenos, and Spatial Displacement'
 
 require('common')
@@ -86,3 +86,4 @@ ashita.events.register('command', 'sw_command', function(e)
         print('[SW] Usage: /sw ad OR /sw s <destination>')
     end
 end)
+
